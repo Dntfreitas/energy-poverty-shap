@@ -1,0 +1,40 @@
+\begin{sidewaystable}[!htbp]
+\section{Variables of the HILDA survey}\label{AppendixA}
+\centering
+\caption{Summary of variables used in the study.}
+\label{tab:my-table2}
+\begin{adjustbox}{totalheight=0.9\textheight, width=\textwidth, keepaspectratio}
+\begin{tabularx}{1.4\textwidth}{lXXX}
+\toprule
+\textbf{Variable}                & \textbf{Description}                                                        & \textbf{Type}            & \textbf{Observations} \\ 
+\midrule
+Participant ID                      & Identification of the participant.                                          & -----                     & This variable was not included in the prediction model \\
+Year                    & Year the participant data was collected.                                    & Discrete                 & This variable was not included in the prediction model \\
+Part-time employment rate            & Percentage of the workforce employed part-time.                             & Continuous               &  \\
+Unemployment rate            & Total unemployment rate.                                                    & Continuous               &  \\
+Unemployment rate change    & Year-over-year change in the total unemployment rate.                       & Continuous               & Reflects shifts in labor market conditions and employment opportunities. \\
+Total labor force participation rate         & Labor force participation rate.                                             & Continuous               &  \\
+Total labor force participation rate change & Year-over-year change in the total labor force participation rate.          & Continuous               & Indicates changes in the proportion of individuals actively participating in the labor market. \\
+GSP per capita                   & Gross state product per capita.                                             & Continuous               &  \\
+GSP per capita growth             & Growth rate of gross state product per capita.                              & Continuous               &  \\
+GSP per capita growth change     & Year-over-year change in the growth rate of gross state product per capita. & Continuous               & Captures the economic growth fluctuations at the state level. \\
+Energy price             & Energy price.                                                               & Continuous               & Adjusted for inflation. \\
+Energy price change     & Year-over-year change in the energy price.                                  & Continuous               & Measures fluctuations in energy costs that may impact household energy affordability. \\
+Years of education           & Logarithm of the number of years the participant has been educated.         & Continuous               &  \\
+Age                     & Age                                                                         & Discrete                 &  \\
+Married                 & If married (=1) or not (=0)                                                 & Binary                   &  \\
+Divorced                & If divorced (=1) or not (=0)                                                & Binary                   &  \\
+Widowed                 & If widowed (=1) or not (=0)                                                 & Binary                   &  \\
+Children presence at household             & Number of minors at home.                                                   & Discrete                 &  \\
+Unemployment status                   & If unemployed (=1) or not (=0)                                              & Binary                   &  \\
+Poor health              & If the individual perceives their health status as bad or very bad (=1) or not (=0). & Binary                   &  \\
+Employment status                & If employed (=1) or not (=0).                                               & Binary                   &  \\
+Household size             & Household size.                                                             & Discrete                 &  \\
+Household income         & Logarithm of the household income.                                          & Continuous               &  \\
+Household income change & Year-over-year change in the household income.                              & Continuous               & Reflects income volatility and its potential effect on household vulnerability to energy poverty. \\
+Household region 2 to 8           & Various one-hot encoded regional and household state indicators. & Binary (one-hot encoded) &  \\
+\Gls{mepi}                    & Poverty indicator.                                                          & Continuous               & Includes the 2M, TPR, LIHC indicators, and measures of inability to pay for adequate heating (Heat) or utility bills on time (Arrears). \\
+\bottomrule
+\end{tabularx}
+\end{adjustbox}
+\end{sidewaystable}

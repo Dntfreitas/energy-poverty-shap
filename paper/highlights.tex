@@ -1,0 +1,113 @@
+\documentclass[preprint,authoryear,12pt]{elsarticle}
+
+\usepackage{graphicx}%
+\usepackage{multirow}%
+\usepackage{amsmath,amssymb}%
+%\usepackage{amsthm}%
+\usepackage{mathrsfs}%
+\usepackage[title]{appendix}%
+\usepackage{xcolor}%
+\usepackage{textcomp}%
+\usepackage{manyfoot}%
+\usepackage{booktabs}%
+\usepackage{algorithm}%
+\usepackage{algorithmicx}%
+\usepackage{algpseudocode}%
+\usepackage{listings}%
+\usepackage{graphicx}
+\usepackage{latexsym}
+\usepackage[hidelinks]{hyperref}
+\usepackage{cleveref}
+\usepackage{booktabs}
+\usepackage{threeparttable} % for table notes
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{rotating} % For sidewaystable
+\usepackage{lineno}
+\usepackage{placeins}
+%\usepackage[utf8]{inputenc}
+%\usepackage[small]{caption}
+%\usepackage{graphicx}
+%\usepackage{booktabs}
+%\usepackage{algorithm}
+%\usepackage{algorithmic}
+\usepackage{comment}
+%\urlstyle{same}
+%\newtheorem{example}{Example}
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}[theorem]{Definition}
+%\newtheorem{cor}[thm]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{observation}[theorem]{Observation}
+\newenvironment{proof2}[1]  [Proof]{\textbf{#1.} }{\hfill \rule{2mm}{2mm}\\}
+\usepackage{hyperref}
+\usepackage{comment}
+\usepackage{todonotes}
+\usepackage{pdflscape}
+\usepackage{adjustbox}
+\usepackage{longtable}
+\usepackage{tabularx} % To make use of X columns
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%     ACRONYMS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[acronym,hyperfirst=false,nohypertypes={acronym}]{glossaries}
+ 
+\newacronym{ann}{ANN}{Artificial Neural Networks}
+\newacronym{hilda}{HILDA}{Household, Income and Labour Dynamics in Australia}
+\newacronym{knn}{$k$-NN}{$k$-Nearest Neighbors}
+\newacronym{mepi}{MEPI}{Multidimensional Energy Poverty Index}
+\newacronym{ml}{ML}{Machine Learning}
+\newacronym{rf}{RF}{Random Forest}
+\newacronym{shap}{SHAP}{SHapley Additive exPlanations}
+\newacronym{xgboost}{XGBoost}{Extreme Gradient Boosting}
+\newacronym{ovr}{OvR}{One-vs-the-Rest}
+\newacronym{rocauc}{ROC~AUC}{Receiver Operating Characteristic - Area Under Curve}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%     MACROS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\citeTwo}[1]{(\cite{#1})}
+
+\newcommand{\ef}[1]{\todo[inline,color=blue!30]{\textbf{ef:} {#1}}}
+\newcommand{\efi}[1]{\todo[color=blue!30]{\textbf{ef:} {#1}}}
+
+\newcommand{\sbud}[1]{\todo[inline,color=red!30]{\textbf{sb:} {#1}}}
+\newcommand{\sbudi}[1]{\todo[color=red!30]{\textbf{sb:} {#1}}}
+
+
+\sloppy
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%     END MACROS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\begin{frontmatter}
+
+
+
+%%Research highlights
+\begin{highlights}
+\item Introduces SHAP values in energy poverty analysis, improving interpretability and insight into predictive factors.
+\item Reveals the role of income and income volatility on future energy poverty using longitudinal data.
+\item Identifies critical periods for policy intervention, emphasizing proactive rather than reactive measures.
+\item Highlights the varying impacts of energy prices and household composition on energy poverty risk over time.
+\end{highlights}
+
+
+\end{frontmatter}
+
+\end{document}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+\endinput

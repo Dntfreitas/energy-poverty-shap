@@ -1,0 +1,123 @@
+\documentclass[preprint,authoryear,12pt]{elsarticle}
+
+\usepackage{graphicx}%
+\usepackage{multirow}%
+\usepackage{amsmath,amssymb}%
+%\usepackage{amsthm}%
+\usepackage{mathrsfs}%
+\usepackage[title]{appendix}%
+\usepackage{xcolor}%
+\usepackage{textcomp}%
+\usepackage{manyfoot}%
+\usepackage{booktabs}%
+\usepackage{algorithm}%
+\usepackage{algorithmicx}%
+\usepackage{algpseudocode}%
+\usepackage{listings}%
+\usepackage{graphicx}
+\usepackage{latexsym}
+\usepackage[hidelinks]{hyperref}
+\usepackage{cleveref}
+\usepackage{booktabs}
+\usepackage{threeparttable} % for table notes
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{rotating} % For sidewaystable
+\usepackage{lineno}
+\usepackage{placeins}
+%\usepackage[utf8]{inputenc}
+%\usepackage[small]{caption}
+%\usepackage{graphicx}
+%\usepackage{booktabs}
+%\usepackage{algorithm}
+%\usepackage{algorithmic}
+\usepackage{comment}
+%\urlstyle{same}
+%\newtheorem{example}{Example}
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}[theorem]{Definition}
+%\newtheorem{cor}[thm]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{observation}[theorem]{Observation}
+\newenvironment{proof2}[1]  [Proof]{\textbf{#1.} }{\hfill \rule{2mm}{2mm}\\}
+\usepackage{hyperref}
+\usepackage{comment}
+\usepackage{todonotes}
+\usepackage{pdflscape}
+\usepackage{adjustbox}
+\usepackage{longtable}
+\usepackage{tabularx} % To make use of X columns
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%     ACRONYMS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[acronym,hyperfirst=false,nohypertypes={acronym}]{glossaries}
+ 
+\newacronym{ann}{ANN}{Artificial Neural Networks}
+\newacronym{hilda}{HILDA}{Household, Income and Labour Dynamics in Australia}
+\newacronym{knn}{$k$-NN}{$k$-Nearest Neighbors}
+\newacronym{mepi}{MEPI}{Multidimensional Energy Poverty Index}
+\newacronym{ml}{ML}{Machine Learning}
+\newacronym{rf}{RF}{Random Forest}
+\newacronym{shap}{SHAP}{SHapley Additive exPlanations}
+\newacronym{xgboost}{XGBoost}{Extreme Gradient Boosting}
+\newacronym{ovr}{OvR}{One-vs-the-Rest}
+\newacronym{rocauc}{ROC~AUC}{Receiver Operating Characteristic - Area Under Curve}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%     MACROS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\citeTwo}[1]{(\cite{#1})}
+
+\newcommand{\ef}[1]{\todo[inline,color=blue!30]{\textbf{ef:} {#1}}}
+\newcommand{\efi}[1]{\todo[color=blue!30]{\textbf{ef:} {#1}}}
+
+\newcommand{\sbud}[1]{\todo[inline,color=red!30]{\textbf{sb:} {#1}}}
+\newcommand{\sbudi}[1]{\todo[color=red!30]{\textbf{sb:} {#1}}}
+
+
+\sloppy
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%     END MACROS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\begin{frontmatter}
+
+\title{Toward Proactive Policy Design: Identifying 'To-Be' Energy-Poor Households Using SHAP for Early Intervention }
+
+\author{---}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{abstract}
+Identifying at-risk populations is essential for designing effective energy poverty interventions. Using data from the HILDA Survey, a longitudinal dataset representative of the Australian population, and a multidimensional index of energy poverty, we develop a machine learning model combined with SHAP (SHapley Additive exPlanations) values to document the short- and long-term effects of individual and contextual factors—such as income, energy prices, and regional conditions—on future energy poverty outcomes. The findings emphasize the importance of policies focused on income stability and may be used to shift the policy focus from reactive measures, which address existing poverty, to preventive strategies that target households showing early signs of vulnerability.
+\end{abstract}
+
+\begin{keyword}
+Energy poverty \sep panel data \sep explainable AI \sep time-series analysis \sep public policy \sep temporal dynamics \sep feature importance
+\\
+\textit{JEL codes:} I32 \sep D12 \sep C53.
+\end{keyword}
+
+
+
+\end{frontmatter}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\end{document}
+
+\endinput

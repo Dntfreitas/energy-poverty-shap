@@ -1,0 +1,24 @@
+\begin{table}
+\centering
+\small
+\begin{threeparttable}
+\caption{Predictive performance of the balanced bagging classifier model across varying time windows.}
+\label{tab:my-table1}
+\begin{tabular}{cccc}
+\toprule
+\textbf{Window size ($T$)} & \textbf{Sensitivity (\%)} & \textbf{Specificity (\%)} & \textbf{\Gls{rocauc} (\%)} \\
+\midrule
+2               & 70.39                     & 69.23                     & 69.81                 \\
+4               & 70.82                     & 73.65                     & 72.24                 \\
+\textbf{8}               & \multirow{2}{*}{\textbf{73.25}}    & \multirow{2}{*}{\textbf{66.77}}    & \multirow{2}{*}{\textbf{70.01}}\\
+\textbf{(baseline)}      &                           &                           &                       \\
+12              & 71.60                      & 65.79                     & 68.69                 \\
+14              & 78.74                     & 66.31                     & 72.52                 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\item {\bf Notes:} This table highlights the trade-offs between sensitivity, specificity, and \Gls{rocauc}. Sensitivity reflects the model's ability to correctly identify energy-poor households, while specificity measures its ability to correctly identify non-energy-poor households. \Gls{rocauc} evaluates the model's overall capacity to discriminate between energy-poor and non-energy-poor households across varying decision thresholds. These results were obtained from the evaluation of unseen data (i.e., unseen participants).
+\end{tablenotes}
+\end{threeparttable}
+\end{table}

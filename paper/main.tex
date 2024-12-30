@@ -1,0 +1,768 @@
+\documentclass[preprint,authoryear,12pt]{elsarticle}
+
+\usepackage{graphicx}%
+\usepackage{multirow}%
+\usepackage{amsmath,amssymb}%
+%\usepackage{amsthm}%
+\usepackage{mathrsfs}%
+\usepackage[title]{appendix}%
+\usepackage{xcolor}%
+\usepackage{textcomp}%
+\usepackage{manyfoot}%
+\usepackage{booktabs}%
+\usepackage{algorithm}%
+\usepackage{algorithmicx}%
+\usepackage{algpseudocode}%
+\usepackage{listings}%
+\usepackage{graphicx}
+\usepackage{latexsym}
+\usepackage[hidelinks]{hyperref}
+\usepackage{cleveref}
+\usepackage{booktabs}
+\usepackage{threeparttable} % for table notes
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{rotating} % For sidewaystable
+\usepackage{lineno}
+\usepackage{placeins}
+%\usepackage[utf8]{inputenc}
+%\usepackage[small]{caption}
+%\usepackage{graphicx}
+%\usepackage{booktabs}
+%\usepackage{algorithm}
+%\usepackage{algorithmic}
+\usepackage{comment}
+%\urlstyle{same}
+%\newtheorem{example}{Example}
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}[theorem]{Definition}
+%\newtheorem{cor}[thm]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{observation}[theorem]{Observation}
+\newenvironment{proof2}[1]  [Proof]{\textbf{#1.} }{\hfill \rule{2mm}{2mm}\\}
+\usepackage{hyperref}
+\usepackage{comment}
+\usepackage{todonotes}
+\usepackage{pdflscape}
+\usepackage{adjustbox}
+\usepackage{longtable}
+\usepackage{tabularx} % To make use of X columns
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%     ACRONYMS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[acronym,hyperfirst=false,nohypertypes={acronym}]{glossaries}
+ 
+\newacronym{ann}{ANN}{Artificial Neural Networks}
+\newacronym{hilda}{HILDA}{Household, Income and Labour Dynamics in Australia}
+\newacronym{knn}{$k$-NN}{$k$-Nearest Neighbors}
+\newacronym{mepi}{MEPI}{Multidimensional Energy Poverty Index}
+\newacronym{ml}{ML}{Machine Learning}
+\newacronym{rf}{RF}{Random Forest}
+\newacronym{shap}{SHAP}{SHapley Additive exPlanations}
+\newacronym{xgboost}{XGBoost}{Extreme Gradient Boosting}
+\newacronym{ovr}{OvR}{One-vs-the-Rest}
+\newacronym{rocauc}{ROC~AUC}{Receiver Operating Characteristic - Area Under Curve}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%     MACROS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\citeTwo}[1]{(\cite{#1})}
+
+\newcommand{\ef}[1]{\todo[inline,color=blue!30]{\textbf{ef:} {#1}}}
+\newcommand{\efi}[1]{\todo[color=blue!30]{\textbf{ef:} {#1}}}
+
+\newcommand{\sbud}[1]{\todo[inline,color=red!30]{\textbf{sb:} {#1}}}
+\newcommand{\sbudi}[1]{\todo[color=red!30]{\textbf{sb:} {#1}}}
+
+
+\sloppy
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%     END MACROS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\begin{frontmatter}
+
+\title{Toward Proactive Policy Design: Identifying 'To-Be' Energy-Poor Households Using SHAP for Early Intervention}
+
+\author[Nebrija,CEEAplA]{Santiago Budría\corref{correspondingauthor}}
+\cortext[correspondingauthor]{Corresponding author}
+\ead{sbudria@nebrija.es}
+
+\author[addressUMa,addressNOVALINCS]{Eduardo Fermé}
+%\corref{mycorrespondingauthor}}
+%\cortext[mycorrespondingauthor]{Corresponding author}
+\ead{ferme@uma.pt}
+
+\author[addressUMa,addressNOVALINCS,addressITI]{Diogo Nuno Freitas}
+%\corref{mycorrespondingauthor}}
+%\cortext[mycorrespondingauthor]{Corresponding author}
+\ead{diogo.freitas@staff.uma.pt}
+
+
+\address[Nebrija] {Universidad Antonio de Nebrija, Spain}
+\address[CEEAplA] {Centro de Estudos de Economia Aplicada do Atlântico (CEEAplA), Portugal}
+\address[addressUMa]{Universidade da Madeira\\ Campus Universit\'ario da Penteada, 9020-105 Funchal, Portugal}
+\address[addressNOVALINCS]{NOVA Laboratory for Computer Science and Informatics (NOVA LINCS), Portugal}
+\address[addressITI]{Interactive Technologies Institute (ITI/LARSyS and ARDITI),Portugal}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{abstract}
+Identifying at-risk populations is essential for designing effective energy poverty interventions. Using data from the HILDA Survey, a longitudinal dataset representative of the Australian population, and a multidimensional index of energy poverty, we develop a machine learning model combined with SHAP (SHapley Additive exPlanations) values to document the short- and long-term effects of individual and contextual factors—such as income, energy prices, and regional conditions—on future energy poverty outcomes. The findings emphasize the importance of policies focused on income stability and may be used to shift the policy focus from reactive measures, which address existing poverty, to preventive strategies that target households showing early signs of vulnerability.
+\end{abstract}
+
+\begin{keyword}
+Energy poverty \sep panel data \sep explainable AI \sep time-series analysis \sep public policy \sep temporal dynamics \sep feature importance
+\\
+\textit{JEL codes:} I32 \sep D12 \sep C53.
+\end{keyword}
+
+%%Research highlights
+\begin{comment}
+\begin{highlights}
+\item Introduces SHAP values in energy poverty analysis, improving interpretability and insight into predictive factors.
+\item Reveals the role of income and income volatility on future energy poverty using longitudinal data.
+\item Identifies critical periods for policy intervention, emphasizing proactive rather than reactive measures.
+\item Highlights the varying impacts of energy prices and household composition on energy poverty risk over time.
+\end{highlights}
+\end{comment}
+\end{frontmatter}
+
+\linenumbers
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}	\label{Introduction}	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Energy poverty, a condition where households are unable to access or afford adequate, reliable, and clean energy services, has emerged as a critical global issue. Recent estimates suggest that 750 million people still lack access to electricity worldwide, and more than 2 billion people lack access to clean cooking fuels \citeTwo{IEA24}. In economic literature, energy poverty has garnered independent attention and is now studied as a distinct subject. This is because energy poverty is only moderately correlated with income poverty and yet negatively related to relevant economic outcomes, including human capital formation \citeTwo{PK19}, well-being \citeTwo{NHL24}, and health \citeTwo{PEND24}.
+
+In this context, the identification of populations at risk is essential for formulating effective policy interventions. While there has been significant research on the socioeconomic determinants of energy poverty \citeTwo{FFT22,ABR22,KA22}, most studies look only at contemporaneous relationships, assuming that control variables fully represent the information influencing the observed outcome. This approach may overlook the potential role of long-memory processes and the enduring influence of contextual factors. If energy poverty is indeed a chronic state shaped by an individual's history, such perspectives could provide an incomplete understanding. Evidence on the long-term effects of specific characteristics on energy poverty remains scarce, highlighting the need for further research in this area.
+
+This paper takes a step forward by analyzing the short- and a long-term effects of individual variables and contextual factors---such as income, energy prices, regional conditions, and other socioeconomic variables---on future energy poverty outcomes. We use the 2007--2021 waves of the \Gls{hilda} Survey\footnote{\href{https://melbourneinstitute.unimelb.edu.au/hilda}{https://melbourneinstitute.unimelb.edu.au/hilda}.}, a micropanel survey representative of the Australian population, which allows us to track people over up to 15~consecutive years. Since energy poverty is a multifaceted construct, we utilize a \Gls{mepi} incorporating five items that capture both objective (expenditure-based) and subjective (self-assessed) dimensions. We then use \Gls{ml} models to forecast the \Gls{mepi} and employ \Gls{shap} \citeTwo{LL17} to interpret these predictions. \Gls{shap} quantifies the contribution of each variable, highlighting how specific factors at different points in time influence future energy poverty outcomes. This approach provides an understanding of the importance of each variable and the temporal dynamics shaping energy poverty trajectories.
+
+This paper makes three significant contributions to the literature. First, the paper aims to advance the methodological toolkit for studying energy poverty. \Gls{shap} has been applied successfully to the study of financial time series data \citeTwo{MHB19}, short-term load forecasting \citeTwo{LOKK23}, and aviation’s predictive maintenance \citeTwo{AA24}. To the best of our knowledge, this is the first analysis to combine \Gls{shap} techniques with high-quality micropanel data to identify household-level drivers of energy poverty. By using \Gls{shap}, the paper highlights how its application in energy poverty research extends beyond the capabilities of traditional analytical methods, offering dynamic and actionable insights for policymakers.
+
+Second, the paper contributes to the growing body of literature employing \Gls{ml} techniques to analyze the determinants of energy poverty. This approach is still limited but increasingly recognized for its potential to guide alleviation strategies\footnote{Unlike traditional regression methods, which require prior assumptions about potential correlations and their functional forms, \Gls{ml} techniques allow these relationships to naturally emerge during model training and excel at capturing complex, non-linear dependencies.} \citeTwo{DSv21,vDv22,SRL23,GJA24}. However, much of the existing \Gls{ml}-based evidence relies on contemporaneous relationships between explanatory variables and energy poverty, largely due to the prevalence of cross-sectional or short-duration datasets. In contrast, our study leverages a 15-year longitudinal dataset to explore predictive dynamics. While the previous studies utilized \Gls{xgboost}, \Gls{knn}, \Gls{rf}, and \Gls{ann}, this paper focuses on capturing temporal dependencies. By employing \Gls{shap}, we quantify and disentangle the contribution of each feature to predictions, both overall and at specific points in time, offering insights into how past conditions influence future energy poverty. 
+
+Third, historically, public initiatives that address energy poverty---particularly in developed nations---have primarily focused on providing financial assistance and energy subsidies to individuals currently classified as (energy) poor. This approach operates on the assumption that immediate interventions can effectively alleviate energy poverty in the short term. However, this focus overlooks households that are at risk of becoming energy-poor in the future, leaving a significant portion of the potentially vulnerable population unaddressed. Our approach challenges this perspective by emphasizing the importance of both the timing and the magnitude of key variables, such as income stability and energy prices, in shaping energy poverty trajectories. By identifying these ``to-be energy-poor" households, our paper paves the way for more proactive  policies that that tackle the historical, individual-level causes of energy poverty, moving beyond temporary relief measures.
+
+We consider Australia to be a compelling subject for our research. Escalating energy costs have been a major concern over the last decade in Australia as electricity prices have almost tripled \citeTwo{Pro22}. Forward electricity prices for 2023 delivery in Australia’s National Electric Market surged from approximately \$48 in 2021 to \$156/MWh in 2022 (the 52-week average), peaking around \$247/MWh in October 2022 \citeTwo{Sim23}. This substantial surge, relative to household income, has placed a heavier burden on household budgets and exacerbated issues related to energy access and affordability \citeTwo{OECD23}. Furthermore, despite its fragmented system of energy assistance---varied across states and territories---existing programs are largely focused on mitigating costs through price subsidies and welfare payments for energy bills \citeTwo{Wil22}. These measures heavily rely on means-testing and target low-income groups \citeTwo{SM23}, often overlooking individuals who are not currently energy-poor but are at risk of becoming so. By identifying to-be energy-poor individuals before they fall into vulnerability, our paper shifts the focus from reactive policy interventions to preventive, forward-looking interventions.
+
+The paper shows that historical household income levels are pivotal in forecasting energy poverty outcomes, particularly over longer time horizons and in more severe cases. It also highlights the significant impact of income variations, independent of static income levels. This effect intensifies when transitioning from short-term to long-term poverty, suggesting that income volatility is particularly harmful in the long run. Additionally, energy prices have a moderate, non-linear effect in the short term but become less relevant for longer horizons. These findings emphasize the importance of policies focused on income stability and may be used to shift the policy focus from reactive measures, which address existing poverty, to preventive strategies that target households showing early signs of vulnerability.
+
+The paper is structured as follows: \Cref{Review_of_the_literature} reviews the relevant literature on energy poverty, its determinants, and the application of machine learning methods in this context. \Cref{Data_and_key_variables} describes the data, key variables, and the construction of the \Gls{mepi}. \Cref{Methodological_approach} outlines the methodological approach, including model development and the use of \Gls{shap} for interpretability. \Cref{Results} presents the results, highlighting the predictive performance of the models and the temporal dynamics of key variables. \Cref{Sensitivity_checks} discusses sensitivity analyses and robustness checks. Finally, \Cref{Conclusions} concludes with key findings, policy implications, and limitations of the study. The paper includes three appendices with technical details.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Review of the literature} \label{Review_of_the_literature}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Energy poverty can be defined as a household’s inability to afford or access energy services needed to support adequate living conditions and human development. While translating into practice conceptual definitions of energy poverty is typically a challenge and has been the object of extensive discussion in the literature (for an overview see \citet{SM22}) the focus has generally been put on the inability of households to afford and have access to adequate energy services.
+
+The global interest in energy poverty stems from its far-reaching consequences, which are multifaceted. Research based on international macroeconomic data shows that the prevalence of energy poverty negatively affects development, health outcomes, and average schooling levels \citeTwo{BMM21}. Moreover, energy access and affordability are crucial dimensions of multidimensional poverty, and, as such, they can be negatively related to economic growth \citeTwo{BL24}. Studies based on microeconomic panel data are consistent with this notion, showing that energy poverty significantly affects a number of personal-level outcomes, including subjective well-being \citeTwo{LO21} and health \citeTwo{ZSYW21,PEND24}. Energy poverty is also negatively related to children’s academic performance \citeTwo{ZAK21} and human capital formation \citeTwo{PK19}.
+
+Using international comparable data, research shows that country-level factors such as education, governance quality, technology advancements, economic development, and health expenditures are relevant determinants of household-level energy poverty depending on the country’s GDP \citeTwo{BAIA24}. Moreover, income inequality and, to a lesser extent, climate conditions also play a role \citeTwo{IM22}. Furthermore, the sources of electricity production also contribute to shaping energy poverty outcomes, reflecting the importance of a country's energy mix \citeTwo{KUO23}. Additionally, high energy costs, accessibility, and the types of energy sources further shape these outcomes
+\citeTwo{PDS21}. Inefficient building structures, dwelling size, age, thermal insulation, floor area, and heating system can be significantly correlated with various forms of energy deprivation \citeTwo{KS20}.
+
+At the household level, income constraints, coupled with high energy prices, can culminate in the difficulty of paying bills, energy debt, and even the disconnection of energy supplies \citeTwo{ABR22,MM24}. Educational attainment is inversely correlated with energy poverty, primarily due to energy-saving practices and an improved economic situation. Education enhances knowledge and the capacity to make choices that benefit household welfare, leading to better living conditions through improved decision-making and the adoption of more efficient energy sources \citeTwo{CAF19}. Place of residence, gender, and household size also exhibit a statistically significant relationship with multidimensional poverty due to increased energy consumption needs \citeTwo{ALXBR20}. Additionally, age effects may arise from life cycle patterns, household arrangements, and risk-taking behavior, while poor health conditions may hinder access to energy services and goods by altering spending priorities and consumption patterns \citeTwo{FFT22}. Labor market status, as well as marital status, are frequently found to be significantly associated with energy deprivation, with the effect being particularly pronounced in developing economies \citeTwo{ALXBR20,ABR22,MM24}. Cultural characteristics and parental behavior \citeTwo{PAS22}, and energy subsidies also contribute to shaping energy deprivation outcomes \citeTwo{HSRKCS23}.
+
+Despite these advances, a significant gap in the literature persists: understanding how current circumstances shape energy poverty outcomes later in life. The studies discussed above primarily emphasize contemporaneous relationships between explanatory factors and energy poverty, regardless of whether the findings stem from cross-sectional or panel data analyses. Studies on energy poverty dynamics are scarce, with only a few papers addressing this issue through dynamic panel models in which energy poverty is allowed to depend on past energy poverty \citeTwo{AD20,DJ21,HK23}. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Machine learning models in energy poverty research} \label{Machine_learning_models_in_energy_poverty_research}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+A recent body of literature has introduced \Gls{ml} techniques to predict energy poverty outcomes. Evidence based on an \Gls{xgboost} framework to predict the risk of experiencing energy poverty in the Netherlands identifies income, house value, and house ownership as the main drivers of energy poverty \citeTwo{DSv21}. In a similar setting, and based on 11~European countries, income, household size, and floor area were consistent predictors \citeTwo{vDv22}. Evidence based on an \Gls{rf} classifier across the European Union uncovers household- and country-level predictors like dwelling conditions, energy efficiency, and gas supplier switching rates \citeTwo{SRL23}.
+
+
+While the previous studies are based on a single energy poverty indicator, other studies define a multidimensional energy poverty index similar to ours. These studies showed that in Asian and African countries, wealth, marital status, and residence attributes are significant predictors of poverty \citeTwo{ALXBR20}. Recent research has further advanced these methodologies by employing ensemble models, such as \Gls{xgboost}, combined with \Gls{rf} and \Gls{ann}, revealing the critical importance of education and food security indicators in determining energy poverty \citeTwo{GJA24}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Measurement} \label{Measurement}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The literature typically distinguishes between objective (expenditure-based) and subjective (self-assessed) approaches. Because poorer households often spend higher proportions of their budget on energy-related expenses relative to higher-income households \citeTwo{SM22}, expenditure-based measures label a household as energy-poor when the income that households spend on energy is above a specific threshold. For instance, a household may be classified as energy poor if i) its share of income spent on energy is greater than twice the national median (the 2M indicator); ii) its share of income spent on energy exceeds 10\% (the Ten Percent Rule, TPR); or iii) its actual energy expenditures are above the national median and, at the same time, their income net of energy costs is below the official national income poverty line (the Low Income High Costs indicator, LIHC). These measures have been used extensively in the literature \citeTwo{FFT22,ABR22,MM24}.
+
+However, while expenditure-based measures are objective and transparent, they may overlook intentional reduction in energy consumption by low-income households. If vulnerable households limit their energy consumption to prioritize other services and goods, measures based on the actual energy costs may underestimate the true prevalence of energy poverty. Moreover, low-income families can resort to energy credits and repayments to smooth their monthly energy costs over time. To overcome these limitations, applied research has relied on individuals' self-evaluations of their ability to afford and access specific energy services \citeTwo{PAS22,SRL23}. Following this criterion, several multidimensional energy poverty indexes have been proposed, gathering information related to basic energy services, including cooking, lighting, and household appliances in developing countries \citeTwo{ALXBR20,GJA24}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Data and key variables} \label{Data_and_key_variables}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We use the \Gls{hilda} Survey, a comprehensive, nationally representative longitudinal study that examines the economic, social, and demographic dynamics of Australian households. Initiated in 2001 and conducted annually, it tracks individuals and households over time, providing important information about income, labor market activities, health, education, and family relationships, among other factors. The original 2001 sample included approximately 7,600 households and 13,000 individuals, with periodic updates to account for attrition. While panel data is subject to selection and attrition bias, potentially limiting the generalizability of findings, \Gls{hilda} has a high average retention rate of over 90\% across waves. Nonetheless, to address concerns about attrition bias, several sensitivity checks are presented in \Cref{Sensitivity_checks}.
+
+We utilize a balanced panel, allowing for varying durations. Our benchmark analysis relies on data spanning up to $T=8$ consecutive years, enabling us to conceptualize energy poverty at time $T$ as a function of characteristics from the previous $T-1$ periods. This approach yields 106,475 observations from a cohort of 7,977 individuals with complete records. To enhance the robustness of our findings, in \Cref{Sensitivity_checks} we present additional results for panels spanning $T=2$, $T=4$, $T=12$, and $T=14$ years. 
+
+We model energy poverty as a function of socioeconomic factors that are standard in the literature. These include household income, employment status, schooling, age, marital status, parenthood, health status, and household size. We also include controls for remoteness, region of residence (the six states and two territories of Australia, reference: New South Wales), and wave-specific effects. Due to their potential impact on energy poverty, we use annual electricity and gas prices at the state level drawn from the Australian Bureau of Statistics \citeTwo{ABS24}. All income and price variables used in the paper are transformed using the OECD equivalence scale and normalized into real terms using the yearly consumer price index. We also include variables to control for macroeconomic conditions at the regional level. The economic cycle affects the chance to find and keep jobs, and it also impacts the likelihood of having a stable income source. We include controls for the regional unemployment rate, per capita GDP, and GDP growth. We also include the regional participation rate to capture competition effects in the labor market and the labor force share of part-time workers to account for the fact that areas with a higher proportion of temporary and/or part-time contracts typically experience greater uncertainty in work hours and income stability. In  \ref{AppendixA} we provide a detailed summary of the variables used in the analysis.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Energy poverty} \label{Energy_poverty}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Energy poverty is a multifaceted construct; therefore, we rely on five items that capture both expenditure-based and subjective dimensions. The expenditure-based measures include the 2M, TPR, and LIHC indicators, which are widely recognized in the energy poverty literature and detailed in \Cref{Measurement}. We also consider two self-assessed indicators based on the household’s inability to pay to heat their home because of a shortage of money (Heat) and pay electricity, gas, or telephone bills on time (Arrears). 
+
+The \Gls{mepi} index is calculated as follows: Let $J=5$ represent the set of poverty indicators, with element $j$, $j \in J$ and $m = \text{card}(J)$. Let $I$ be a set of individuals, with element $i$, $i \in I$, and $T$ be a set of time periods, $t \in T$, representing a specific moment when the survey was conducted. Let $EP_{ijt}$ denote the status of the $i$th individual in the $j$-th indicator during period $t$. If an individual $i$ is poor under indicator $j$ in the period $t$, then $\text{EP}_{ijt}$ takes the value of one, and zero otherwise. Following the family of indexes typically described in the literature on material deprivation \citeTwo{DPX19}, individual $i$’s weighted poverty score is given by:
+\begin{equation}
+\text{MEPI}_{it} = \left(\sum_{j \in J} w_j \text{EP}_{ijt}\right), \quad \forall i \in I, \, t \in T_i; \, T_i \subseteq T,
+\end{equation}
+where $w_j$ denotes the weight assigned to the poverty indicator $j$, with $\sum_{j \in J} w_j = 1$. Hence, the $\text{MEPI}_{it}$ ranges from 0 to 1 and captures the percentage of dimensions in which the individual is deprived. An individual $i$ is regarded as energy poor if $\text{MEPI}_{it} > \bar{m}$, where $\bar{m}$ is a cut-off point. Thus, our dependent variable is a binary variable that takes value one if the individual is energy-poor, and zero otherwise. For the baseline parametrization, we set $\bar{m} = 0$. In \Cref{Sensitivity_checks}, we provide robustness checks with alternative cut-off points, namely $\bar{m} = 0.2$ and $\bar{m} = 0.4$.
+
+While it is common to assign equal weights to the indicators, we emphasize the indicators where deprivation is less common, the so-called frequency-based weighting approach \citeTwo{DL13}. The weight given to an indicator is proportional to the percentage of individuals {\em not} classified as poor under that specific indicator within a particular state. In other words,
+\begin{equation}
+w_j = \frac{(1 - n_j)}{\sum_{j \in J}(1 - n_j)},
+\end{equation}
+where $n_j$ is the proportion of poor individuals in dimension $j$. This choice is motivated by the idea that not having access to common items should be a more relevant determinant of deprivation than less common items. Additionally, the weights are based on the distribution of achievements in society without considering any value judgment about what the trade-offs between items should be. For greater granularity and accuracy, the weights are calculated separately for each wave. There are two advantages to using that approach. Firstly, it allows the poverty of a given individual to increase if their conditions do not change and the conditions of all others improve. Secondly, it adapts automatically over time, considering economic conditions and social and cultural preferences when accessing items.
+
+The \Gls{mepi} shows two desirable characteristics, as it can be used to measure the prevalence and average intensity of energy poverty in a population. Prevalence is given by:
+\begin{equation}
+p = \frac{q}{\text{card}(I)},
+\end{equation}
+where $q$ is the number of deprived individuals, $q = \sum_{i \in I, t \in T_i} \mathbb{I}\left(\text{MEPI}_{it} > \bar{m}\right)$, where the indicator function $\mathbb{I}(\cdot)$ equals one if its argument holds, and zero otherwise. The intensity of energy poverty, i.e., the average poverty score of individuals identified as energy poor, is:
+\begin{equation}
+a = \frac{\sum_{i \in I, t \in T_i} \text{MEPI}_{it} \times \mathbb{I}(\text{MEPI}_{it} > \bar{m} )}{q}.
+\end{equation}
+
+The average population \Gls{mepi} is then:
+\begin{equation}
+\text{MEPI} = a \times p.
+\end{equation}
+
+The advantages of these axiomatic properties have been highlighted in previous work of \citet{CAF19}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Methodological approach} \label{Methodological_approach}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We employed \Gls{ml} techniques to model energy poverty at time $T$ as a function of historical socioeconomic and demographic variables from the preceding years. Importantly, no data from year $T$ were used in the predictions, ensuring that our forecasting is based entirely on prior historical data. Although the model's accuracy can be improved by including contemporaneous characteristics, we refrain from doing so for two main reasons. First, our focus is on the role of historical factors. Introducing contemporaneous variables could potentially mask the contribution of lagged effects, especially if autocorrelation exists in the data. Second, and more relevant, including contemporaneous variables may introduce reverse causality between energy poverty and socio-demographic variables, such as health and schooling \citeTwo {PK19,PEND24}. By only considering past variables, we eliminate the risk of current energy poverty influencing these characteristics.
+
+We then integrate the \Gls{ml} techniques with an interpretability framework. This integration allows us not only to predict energy poverty outcomes but also to understand the contribution of each historical factor to these predictions. This involves a systematic process of data preparation, model development, and the application of feature importance and explainability techniques.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Data preparation} \label{Data_preparation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+To capture the temporal dynamics of the variables, we created lagged features, which serve as the input to the predictive models. Generically, for each original feature, we obtained new features representing their values from each of the previous years. This transformation ensures that the model has access to the full temporal history of each variable, enabling it to learn patterns and relationships that may influence the energy poverty indicator in the $T$-th year. We split the dataset into training, validation, and test subsets to facilitate model development and evaluation. For our baseline estimates ($T=8$), out of the 7,977 participants in our dataset, 6,382 (80\%) were randomly selected for training and validating the predictive models, while the remaining 1,595 participants (20\%) were included in the test set. The test set was held out and used exclusively to evaluate the final performance of the models, providing an unbiased estimate of their forecasting accuracy.
+
+To avoid data leakage across the splits, each individual was assigned exclusively to one subset, ensuring that no participant’s data appeared in more than one split. Additionally, we removed any user identifiers from the data to prevent the models from learning user-specific patterns, which could limit their generalizability. The year variable (``wave" variable) was also excluded from the input features to ensure that the models focus on patterns within the socioeconomic and demographic variables rather than relying on specific temporal markers.
+
+Before training the models, we standardized the data to ensure consistency and reliability in our modeling process. This involved removing the median and scaling the data according to the interquartile range, a method particularly effective at managing outliers and recommended as a best practice in machine learning \citeTwo{SWW21}. Such standardization is crucial in predictive modeling; it normalizes all input features to a similar scale, thereby enhancing the model’s generalization capabilities and preventing variables with larger magnitudes from disproportionately influencing the learning process \citeTwo{MHTOSC24}. To prevent data leakage, the scaling parameters were calculated using only the training set and then applied to the test sets.
+
+Feature engineering was explored in this study to improve the forecasting power of our models. Specifically, we expanded the set of socioeconomic, geographical, and contextual factors by including a range of interaction terms and decomposing variables into levels and yearly variations. While this approach increased the model's ability to identify energy-poor households to 78.04\% compared to the final model (cf. Table \ref{tab:my-table1}), it reduced the overall accuracy, with the ability to correctly classify non-energy-poor households dropping to 59.31\%. Moreover, the increased complexity introduced by additional variables would pose practical challenges for policymakers, making the results harder to interpret and apply. Consequently, we retained the model configuration that provided a better balance between performance and practical usability for policy design. The results of the models with the expanded feature set can be provided by the authors upon request.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Model development} \label{Model_development}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We treat the energy poverty forecasting task as a classification problem. Specifically, households are classified as energy-poor depending on whether their \Gls{mepi} is greater than $\bar{m}$ (cut-off point), where $\bar{m} = 0$ for the baseline model. 
+
+The dataset used in this study exhibited a significant class imbalance, with most participants (73.55\%) being classified as not energy-poor and a smaller proportion (26.45\%) classified as energy-poor. This imbalance poses challenges for predictive modeling, as standard machine learning methods tend to favor the majority class, potentially leading to poor performance in identifying the minority class \citeTwo{Pro00}. To address this issue, we tested three ensemble classifiers, namely random under-sampling boost classifiers \citeTwo{SKHN10}, balanced bagging classifier (for a review on bagging classifiers, see, e.g., \citet{GFBBH12}), and easy ensemble classifier \citeTwo{LWZ09}. Due to space constraints, we describe here only the balanced bagging classifier. The descriptions of the other classifiers are provided in  \ref{AppendixB}.
+
+A balanced bagging classifier is an ensemble technique that combines the predictions of multiple base models, e.g., decision trees, in order to improve the robustness and accuracy of the outcomes. This method specifically addresses class imbalance by ensuring that each decision tree in the ensemble is trained on a balanced subset of the dataset. These subsets are created by resampling the original training data, wherein each subset contains a representative distribution of both minority (energy-poor) and majority (not energy-poor) classes. In order to further refine the modeling approach, we implemented the classifiers in an \Gls{ovr} binary classification framework \citeTwo{Mur12}. \Gls{ovr} decomposes the problem into multiple binary classification tasks, where each class is treated as a separate binary problem against all other classes. Although \Gls{ovr} is commonly used for multi-class classification tasks, this methodology fits one classifier per class, which enables the models to focus on the distinctions between the two groups.
+
+We optimized the hyperparameters of our classifiers using a grid search, which tested various configurations to identify settings that maximize model performance. For details on the specific hyperparameters and grid configurations, see \ref{AppendixB}. We employed 5-fold cross-validation on the training dataset to ensure the robustness of the hyperparameters across different data splits, selecting the best set based on the highest \Gls{rocauc} score. This metric is crucial for datasets with class imbalances, like the \Gls{hilda} Survey, as it fairly assesses the model's discriminatory power between energy-poor and non-energy-poor households.
+
+The final model was trained on the complete training set using the identified optimal hyperparameters and subsequently evaluated on a held-out test set of 1,595 participants. This approach ensured an unbiased assessment of the model’s forecasting accuracy. All experiments were conducted with a fixed seed to guarantee reproducibility.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Feature importance and explainability} \label{Feature_importance_and_explainability}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+To interpret the forecast of our model and understand the contributions of individual features, we employ the \Gls{shap}. \Gls{shap} is a well-known method for explainability in the literature due to its theoretical consistency and ability to provide both local and global explanations of model behavior \citeTwo{LL17}. It is rooted in cooperative game theory and assigns each feature a contribution value toward the model’s prediction, being thus model agnostic. The \Gls{shap} value ($\phi$) for a given feature $k$ is given by,
+\begin{equation}
+\phi_k = \sum_{S \subseteq N \setminus \{k\}} \frac{|S|!(|N| - |S| - 1)!}{|N|!} \left[ f(S \cup \{k\}) - f(S) \right],
+\end{equation}
+where $N$ is the set of all features, $S$ is a subset of features excluding feature $k$, and $f(S)$ is the model’s prediction based only on the features in the subset $S$. This equation ensures that each feature's contribution is fairly allocated by accounting for all possible combinations of features.
+
+We use \Gls{shap} values to evaluate the importance of each input variable in the model and to identify when a particular variable had the most significant influence on the predictions. We did not perform feature selection before training the models, despite its potential to improve the overall model performance. This decision ensured that no variables were excluded prematurely, allowing the model to consider all socioeconomic, geographical, and contextual factors and their interactions. With this approach, we can identify not only which variables to target for interventions but also the optimal timing for these interventions. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Results} \label{Results}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Models evaluation} \label{Models_evaluation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Among the models evaluated, the balanced bagging classifier achieved the highest average \Gls{rocauc} of 73.22\% $\pm$ 4.48\%, outperforming the random under-sampling boost classifier (69.50\% $\pm$ 6.22\%) and the easy ensemble classifier (70.59\% $\pm$ 4.82\%). Based on these findings, the balanced bagging classifier was selected for detailed analysis. Performance metrics for the other models are provided in \ref{AppendixB} \Cref{tab:my-table3}. A grid search was conducted to optimize the balanced bagging classifier’s configuration for the baseline window. The best setup included 100~estimators with bootstrapping of features but not samples. Each estimator sampled 50\% of the data, and the sampling strategy ensured an equal representation of energy-poor and non-energy-poor instances. Replacement was used in the resampling process.
+
+\Cref{tab:my-table1} presents the performance metrics. Sensitivity reflects the model's ability to identify energy-poor households, specificity measures its ability to identify non-energy-poor households, and \Gls{rocauc} assesses overall discrimination performance. The baseline window ($T = 8$) achieved a \Gls{rocauc} of 70.01\%, with a sensitivity of 73.25\% and a specificity of 66.77\%.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{Table1}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The results in \Cref{tab:my-table1} reveal how window size influences performance. Shorter windows ($T = 2$) yield balanced sensitivity (70.39\%) and specificity (69.23\%), with a \Gls{rocauc} of 69.81\%. At $T = 4$, specificity improves significantly to 73.65\%, leading to a higher \Gls{rocauc} of 72.24\%. The baseline window ($T = 8$) prioritizes sensitivity, achieving the highest value 73.25\%, but with a slightly lower specificity. For longer windows ($T = 12$ and $T = 14$), performance varies: $T = 14$ achieves the highest \Gls{rocauc} of 72.52\% by increasing sensitivity to 78.74\%, though specificity stabilizes at 66.31\%. On the other hand, $T = 12$ obtains the lowest \Gls{rocauc}.
+
+Overall, shorter windows ($T = 2$) favor specificity, while longer windows enhance sensitivity. This can be related to the nature of shorter windows capturing more immediate and recent information, which tends to reduce false positives and improve specificity. In contrast, longer windows incorporate cumulative historical data, allowing the model to better detect patterns associated with energy poverty over time, which enhances sensitivity by reducing false negatives. The choice of window size thus depends on the specific policy objective, whether it prioritizes minimizing false positives or false negatives.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Main explanatory factors and initial policy recommendations}  \label{Main_explanatory_factors}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+In this section, we analyze the predictive power of the model's features, while the discussion of their directional effects is addressed in the next section.\Cref{fig:figure1} shows those factors that contribute at least 1 \%  to the observed outcome over the entire 8-year time window, ranked by order of importance. Household income emerges as the most critical determinant, contributing 38.84\% to the total predictive importance. Notably, changes in household income rank as the second most influential predictor, accounting for 11.29\%. Variables with medium explanatory power include the part-time employment rate (7.31\%), which underscores the role of labor market dynamics in shaping energy poverty, and household size (6.82\%), likely due to the balance between higher energy consumption needs and economies of scale. Energy prices (5.80\%) emerge as the fifth predictive factor, and years of education (5.67\%) emphasize the interplay between human capital and energy poverty. Lower-contribution factors include poor health (3.09\%), employment status (2.78\%), macroeconomic indicators such as the unemployment rate (2.53\%), Gross State Product (GSP) per capita (2.38\%), GSP per capita growth (2.26\%), and the total labor force participation rate (2.11\%). Finally, demographic and family characteristics such as the number of children at home, age groups, and marital status round out the analysis.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[h!]
+\centering
+\resizebox{\textwidth}{!}{\input{Figure1.pgf}}
+\caption{Relative contribution  (\%) of predictive variables for energy poverty outcomes across a 8-year time window.\\
+\small
+{\bf Notes:} i) The figure presents the top predictors with a summed normalized importance of at least 1\% for energy poverty outcomes; ii) Source: \Gls{hilda} 2007--2021 waves.}
+\label{fig:figure1}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\Cref{fig:figure2} breaks down the results from \Cref{fig:figure1} across the different time lags. Household income consistently stands out as the most critical predictor, with its impact peaking at $T-1$ (10.85\%) and gradually diminishing over longer lag periods $(T-2: 8.55\%, T-3: 4.50\%, T-4: 4.41\%, T-5: 4.17\%, T-7: 3.99\%)$. Household income changes are also among the top predictors, particularly at $T-1\,(2.55\%)$ and $T-2\,(2.21\%)$. Additional contributions come from household income changes at $T-3$ and $T-6$, suggesting that historical fluctuations in income continue to influence household energy vulnerability years later. Energy prices operate mainly through a one-year lag, highlighting the effects of short-term fluctuations. Household size at $T-1\,(1.80\%)$ and $T-2\,(1.22\%)$ reflect the immediate impact of family composition on energy poverty. The part-time employment rate also emerges as an important variable, particularly at $T-2\,(1.55\%)$ and $T-6\,(1.50\%)$, pointing to the relevance of the regional employment structure for household energy vulnerability. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[h!]
+\centering
+\resizebox{\textwidth}{!}{\input{Figure2.pgf}}
+\caption{Relative contribution (\%) of predictive variables for energy poverty outcomes across an 8-year time window—discriminated by period. \\
+\small
+{\bf Notes:} (i) The figure presents the normalized importance of predictive variables for energy poverty outcomes across individual time lags. Only predictors with a normalized importance of at least 1\% at any lag are shown; (ii) The suffix ``$T-j$" indicates the time lag of the feature relative to the prediction for year $T$; (iii) Source: HILDA 2007--2021 waves.}
+\label{fig:figure2}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Overall, from a policy perspective, the results offer a set of initial insights. First, the strong association between income across all lags and current energy poverty suggests that income can serve as an indicator to identify individuals at risk of energy poverty, even in the long-term. Second, \Cref{fig:figure3} focuses on the top 5 contributing variables and their relative contribution over time. The growing importance of household income and income changes toward $T-1$ suggests that policies aimed at stabilizing income in the short term can have a great impact on mitigating immediate energy poverty risks. According to our results, such policies may benefit not only those with low incomes but also individuals with moderate incomes who experience above-average income volatility. Third, the contribution of energy prices to energy poverty rises from $T-3$ onwards, reflecting the fact that the energy burden over the last 3 years is partly responsible for current energy poverty outcomes. Therefore, price stabilization strategies that extend beyond just one year or rely on occasional interventions could be beneficial for policy.  Finally, the contribution of household size also grows steadily over the time window, suggesting that energy poverty is critically influenced by recent adjustments in household arrangements and the changes in energy needs and economies of scale associated with them. In the next section, we identify key household sizes. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[h!]
+\centering
+\resizebox{0.85\textwidth}{!}{\input{Figure3.pgf}}
+\caption{Evolution of the relative contribution (\%) of the top five predictive variables for energy poverty outcomes across a 8-year time window. \\
+\small
+{\bf Notes:} i) the figure highlights the temporal trends, persistence, and shifts in the influence of different variables across the individual time lags; ii) Source: \Gls{hilda} 2007--2021 waves.}
+\label{fig:figure3}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{How key predictive variables shape energy poverty outcomes} \label{How_Key_Predictive_Variables_Shape_Energy_Poverty_Outcomes}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+This section explores how key predictive variables influence their \Gls{shap} contributions. A positive \Gls{shap} value indicates a higher probability of energy poverty, while a negative value reflects a reduced risk. The results, shown in \Cref{fig:figure4}, are suggestive of some non-linear relationships. To facilitate interpretation, a fourth-degree least squares polynomial fit was applied to highlight the main trends. However, caution is advised at the plot extremes, where sparse data points may undermine the reliability of interpolations. As household income increases, the \Gls{shap} value decreases sharply. However, this effect is more intense at low and moderate income levels than at high incomes. Similarly, the scatter plot for yearly income variations is suggestive of a somewhat asymmetric effect, with income losses being relatively more relevant for energy poverty than income gains. This pattern reinforces earlier insights that interventions like income insurance, unemployment benefits, or programs aimed at shielding households from income shocks are essential for mitigating these risks.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+     \centering
+     \begin{subfigure}[b]{0.45\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{Figure4a.png}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.45\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{Figure4b.png}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.45\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{Figure4c.png}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.45\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{Figure4d.png}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.45\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{Figure4e.png}
+     \end{subfigure}
+     \caption{Relationship between key predictive variables and \Gls{shap} values for energy poverty outcomes. \\
+    \small
+    {\bf Notes:} i) Each point represents a household, with the x-axis indicating the feature value and the y-axis showing the \Gls{shap} value, which reflects the feature's contribution to the forecasting. Positive \Gls{shap} values indicate a higher likelihood of energy poverty, while negative values suggest a reduced risk. The plots highlight how changes in the variables influence the model's forecasts; ii) The dashed lines summarize the underlying trends and were calculated using a least squares polynomial fit of degree 4. The interpolations at the extremes of the plots may lack reliability due to the sparse data points in these regions, potentially leading to less accurate representations of the trend; iii) Source: \Gls{hilda} 2007--2021 waves.}
+    \label{fig:figure4}
+\end{figure}
+
+
+The part-time employment rate contributes to the energy poverty risk, particularly in areas where the part-time employment rate exceeds 30\%. One possible explanation is that part-time jobs reflect labor market and income instability. These positions often lack critical benefits, such as health insurance or retirement plans, which heightens financial vulnerability. Additionally, fluctuating hours and earnings further amplify economic uncertainty. At lower part-time employment rates (below 25\%), \Gls{shap} values remain relatively stable, indicating a minimal influence. These findings indicate that policies promoting income stability, benefits for part-time workers, and access to full-time employment opportunities are crucial for tackling energy poverty in regions with high part-time employment rates. Additionally, the results in \Cref{fig:figure3} reveal that regional labor market dynamics can have delayed impacts on energy poverty, suggesting that such policies could produce lasting effects. 
+
+The relationship between household size and \Gls{shap} values highlights a clear risk group: people living alone or in two-person households. This is likely because fixed energy costs pose a disproportionately heavy burden on them. As household size increases to 3--4 members, the likelihood of energy poverty decreases, likely reflecting economies of scale in energy consumption, which reduce the per-capita cost burden.
+
+Lastly, energy prices display a notable pattern, suggesting that below a certain threshold, they are not relevant for energy poverty. At low price levels, \Gls{shap} values remain relatively stable, but they increase steadily above \$0.228 and rise significantly beyond \$0.266. This is a relevant finding, as most representations in the literature describe the effect of energy prices on energy poverty in a linear, average manner. However, the results indicate that the relationship between energy prices and energy poverty is non-linear and nearly flat within certain ranges. In this context, energy subsidies and price controls may be ineffective within these ranges, whereas informational campaigns and targeted support for individuals exposed to high prices could play a crucial role. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Sensitivity checks} \label{Sensitivity_checks}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+In this section, we conduct a series of supplementary analyses. Specifically, we explore the sensitivity of the results to variations in i) the time length considered for the analysis and ii) the chosen cut-off point for defining the energy poverty line. We also examine to what extent our findings might be affected by selection and attrition bias. 
+
+In \Cref{fig:figure5} we depict the relative contribution of the predictive variables for alternative time spans. The results show robust consistency across scenarios, with household income emerging as the most significant determinant of energy poverty, irrespective of the time span. Notably, the predictive power of income changes significantly, increasing more than threefold from about 5\% when $T=2$ to over 17\% when $T=12$ or $T=14$. This suggests that income volatility and the uncertainty it creates are crucial factors influencing long-term energy poverty outcomes. 
+
+Additionally, energy prices are relatively important in the short term (6--7\%), but their relevance decreases over the long-term ($<4$\%). Similarly, improvements in education levels are more strongly associated with short-term energy poverty outcomes than with long-term ones. Household size maintains a consistent level of importance across both short- and long-term periods, reinforcing its stable role as a determinant of energy poverty. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+     \centering
+     \begin{subfigure}[b]{0.45\textwidth}
+         \centering
+         \resizebox{\textwidth}{!}{\input{Figure5a.pgf}}
+         \caption{$(T=2)$}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.45\textwidth}
+         \centering
+         \resizebox{\textwidth}{!}{\input{Figure5b.pgf}}
+         \caption{$(T=4)$}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.45\textwidth}
+         \centering
+         \resizebox{\textwidth}{!}{\input{Figure5c.pgf}}
+         \caption{$(T=12)$}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.45\textwidth}
+         \centering
+         \resizebox{\textwidth}{!}{\input{Figure5d.pgf}}
+         \caption{$(T=14)$}
+     \end{subfigure}
+        \caption{Relative contribution (\%) of predictive variables for energy poverty outcomes across alternative time windows. \\
+        \small
+        {\bf Notes:} i) This figure presents the top predictors with a summed normalized importance of at least 1\% for energy poverty outcomes. ii) Source: \Gls{hilda} 2007--2021 waves.}
+        \label{fig:figure5}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+In \Cref{fig:figure6} we discriminate across the different time lags. Perhaps the most relevant finding is that household income in the immediate past ($T-1, T-2, T-3$) holds less accumulated relevance for long-term energy poverty outcomes compared to short-term outcomes. This underscores the notion that energy poverty is influenced by a ``long memory" process, where the individual's entire history—albeit with diminishing weight—plays a critical role. Lagged energy prices are in the list of top contributors for energy poverty outcomes at $T=2$ and $T=4$. However, they disappear for $T=14$, suggesting that in the long-term, the structural aspects of the individual are relatively more relevant than energy prices. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+     \centering
+     \begin{subfigure}[b]{0.45\textwidth}
+         \centering
+         \resizebox{\textwidth}{!}{\input{Figure6a.pgf}}
+         \caption{$(T=2)$}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.45\textwidth}
+         \centering
+         \resizebox{\textwidth}{!}{\input{Figure6b.pgf}}
+         \caption{$(T=4)$}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.45\textwidth}
+         \centering
+         \resizebox{\textwidth}{!}{\input{Figure6c.pgf}}
+         \caption{$(T=12)$}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.45\textwidth}
+         \centering
+         \resizebox{\textwidth}{!}{\input{Figure6d.pgf}}
+         \caption{$(T=14)$}
+     \end{subfigure}
+        \caption{Relative contribution (\%) of predictive variables for energy poverty outcomes across a T-year time window- discriminated by period.\\
+        {\bf Notes:}  i) This figure presents the normalized importance of predictive variables for energy poverty outcomes across individual time lags. Only predictors with a normalized importance of at least 1\% at any lag are shown; ii) The suffix ``$T-j$" indicates the time lag of the feature relative to the prediction for year $T$; iii) Source: \Gls{hilda} 2007--2021 waves.}
+        \label{fig:figure6}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+In \Cref{fig:figure7} we conduct additional sensitivity checks and present results using more stringent criteria for energy poverty ($\bar{m}=0.2$ and $\bar{m}=0.4$). The estimates are based on $T=8$, as in the baseline estimates. The contribution of income rises from approximately 39\% in the baseline estimates ($\bar{m}=0$) to 50.3\% when $\bar{m}=0.4$. Reversely, the contribution of energy prices falls from 5.8\% in the baseline model to 1.5\% when $\bar{m}=0.4$, suggesting that energy prices are not a primary driver of severe energy poverty. Additionally, marriage emerges as a protective factor against stricter definitions of poverty ($>$2.5\%), highlighting its buffering effect in more vulnerable contexts. Finally, \Cref{fig:figure8} documents the timing effects, with income in the previous year gaining importance when accounting for the most stringent definition of energy poverty.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+     \centering
+     \begin{subfigure}[b]{0.45\textwidth}
+         \centering
+         \resizebox{\textwidth}{!}{\input{Figure7a.pgf}}
+         \caption{$(\bar{m}=0.2)$}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.45\textwidth}
+         \centering
+         \resizebox{\textwidth}{!}{\input{Figure7b.pgf}}
+         \caption{$(\bar{m}=0.4)$}
+     \end{subfigure}
+    \caption{Relative contribution (\%) of predictive variables for energy poverty outcomes across a 8-year time window for different cut-off values.\\
+    {\bf Notes:}  This figure presents the normalized contribution of predictive variables for energy poverty outcomes across individual time lags. Only predictors with a normalized importance of at least 1\% at any lag are shown. The results are for a $T=8$ year time window.}
+\label{fig:figure7}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+     \centering
+     \begin{subfigure}[b]{0.45\textwidth}
+         \centering
+         \resizebox{\textwidth}{!}{\input{Figure8a.pgf}}
+         \caption{$(\bar{m}=0.2)$}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.45\textwidth}
+         \centering
+         \resizebox{\textwidth}{!}{\input{Figure8b.pgf}}
+         \caption{$(\bar{m}=0.4)$}
+     \end{subfigure}
+    \caption{Relative contribution (\%) of predictive variables for energy poverty outcomes across a 8-year time window for different cut-off values - discriminated by period.\\
+    {\bf Notes:}  Notes: This figure presents the normalized contribution of predictive variables for energy poverty outcomes across individual time lags. Only predictors with a normalized importance of at least 1\% at any lag are shown. The results are for a $T=8$ year time window.
+    }
+    \label{fig:figure8}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Is attrition endogenous?}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Although the average entry rate (individuals not in the sample in the previous period who are in the current period) and exit rate (individuals who leave the sample) are very moderate in our sample (8.9\% and 7.4\%, respectively), the nonrandom exit and entry of individuals for reasons related to energy poverty is a potential concern. To address this issue, we conducted a regression using a dummy variable that equals one if the individual exits the sample in the following year and zero otherwise, against energy poverty and all controls and obtained a coefficient equal to -0.003 ($p -value = 0.454$). In other words, leaving the sample is not significantly related to energy poverty. We proceeded likewise with individuals entering the sample, and energy poverty showed a significant negative effect -0.005 ($p -value = 0.082$). . This suggests that the incorporation of new panelists in the sample over the years is not completely random, with a slight tendency to incorporate people who are less likely to suffer energy poverty. These individuals may be either less difficult to contact or more ready to join the panel, although once they decide to participate, their attrition is mostly random.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Discussion and conclusions} \label{Conclusions}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+This study highlights the potential of AI-based methodologies, particularly\Gls{shap}, for analyzing the dynamics of energy poverty. It examines the short- and long-term effects of key variables and contextual factors—such as income, energy prices, and regional conditions—on future energy poverty outcomes. By capturing both the timing and magnitude of past events, the study offers a perspective on how these factors shape energy poverty over time. This approach sets our research apart from previous studies, which predominantly rely on static models or contemporaneous relationships between energy poverty and explanatory variables. 
+
+The paper shows that current energy poverty is the outcome of historical trajectories. The results are robust to a battery of sensitivity checks, including alternative definitions of multidimensional energy poverty and varying time spans. Income levels emerge as the most critical factor, particularly for long-term outcomes and under strict definitions of poverty. While the contemporaneous relation between income and energy poverty has been highlighted in previous work  \citeTwo{DSv21,vDv22}, our results uncover the association between income across all lags and current energy poverty. From a policy design perspective, we provide evidence that income can serve as an effective screening tool for identifying 'future' energy-poor individuals—those at risk of becoming energy-poor in the years ahead.  Moreover, our results emphasize the critical role of income \textit{changes}. Historical income fluctuations have lasting effects on household energy vulnerability, persisting over time. This insight introduces a new dimension to combating energy poverty, showing that beyond income levels, individuals experiencing income volatility and uncertainty constitute a high-risk group.
+
+Consistent with numerous studies, we find a positive association between  energy prices and energy poverty \citeTwo{PDS21,SRL23}. However, our study adds that energy prices have a significant impact in the short term and under less stringent definitions of poverty. In contrast, their influence diminishes when addressing long-term energy poverty or more severe cases. Furthermore, our findings suggest the existence of a price threshold beyond which energy prices become particularly detrimental. In this context, measures such as energy subsidies, price controls, and informational campaigns specifically aimed at individuals facing high energy prices could play a critical role. 
+
+The AI-approach used in the paper provides insights that may be used to shift the policy focus from reactive measures, which address existing poverty, to preventive strategies that target households showing early signs of vulnerability. Specifically, our findings suggest that policymakers can enhance resilience and reduce long-term socioeconomic disparities by balancing immediate relief measures—such as energy price support, energy benefits, and income transfers—with structural policies addressing systemic vulnerabilities identified in our study, particularly income volatility, labour market conditions and small households. 
+
+This exploratory study has several limitations that warrant further investigation. A key shortcoming is the failure to account for the endogeneity of life events, such as income shocks, which may be driven by unobserved behaviors, situational factors, or omitted variables. Addressing these issues in future research is essential and could involve incorporating more advanced econometric and AI techniques to ensure a better understanding of the mechanisms at work. Another limitation is the uniform treatment of households, which overlooks heterogeneity in responses to energy poverty predictors. Factors such as income, age, education, and personal traits likely influence how individuals experience and respond to energy challenges \citeTwo{CNQX22}. Future research could improve the granularity and relevance of conclusions by conducting separate analyses based on these dimensions. Finally, this study is focused on a single dataset, the \Gls{hilda} Survey. While this dataset provides rich, longitudinal information about Australian households, testing the methodology on additional datasets from other regions and contexts with varying degrees of energy poverty would help assess the generalizability of the findings and derive equally meaningful insights for other jurisdictions.
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{CRediT authorship contribution statement}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\textbf{Santiago Budría:} Data curation, Formal analysis, Investigation, Methodology, Supervision, Writing – original draft, Writing – review and editing. \textbf{Eduardo Fermé:} Investigation, Methodology, Supervision, Writing – original draft. \textbf{Diogo Nuno Freitas:} Formal analysis, Investigation, Methodology, Software, Writing – original draft, Writing – review and editing.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Declaration of competing interest}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The authors declare no potential conflict of interest.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Acknowledgments}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We want to thank seminar participants at the I Workshop on ``The ecological transition challenge: Energy poverty, Well-being and Sustainability," held in Madrid in November 2024 for their comments and suggestions.
+
+This work was partially supported by FCT-Fundação para a Ciência e a Tecnologia, Portugal through project PRODY: PTDC/CCI-COM/4464/2020; by NOVA LINCS ref. UIDB/04516/2020 (\href{https://doi.org/10.54499/UIDB/04516/2020}{https://doi.org/10.54499/UIDB/04516/2020}) and ref. UIDP/04516/2020 (\href{https://doi.org/10.54499/UIDP/04516/2020}{https://doi.org/10.54499/UIDP/04516/2020}) with the financial support of FCT.IP; by  LARSyS ref. LA/P/0083/2020 (\href{https://doi.org/10.54499/LA/P/0083/2020}{https://doi.org/10.54499/LA/P/0083/2020}) and ref. UIDP/50009/2020 (\href{https://doi.org/10.54499/UIDP/50009/2020}{https://doi.org/10.54499/UIDP/50009/2020}) the financial support of FCT.IP; and  with the financial support provided by the 2022 R\&D\&I National Projects and 2021 Strategic Projects Oriented to the Ecological and Digital Transition by the Spanish Ministry of Sciences and Innovation (Refs: PID2022-143254OB-I00 and TED2021-132824B-I00).
+
+Diogo Nuno Freitas was supported by the Portuguese Foundation for Science and Technology with the grant number 2021.07966.BD 
+(\href{https://doi.org/10.54499/2021.07966.BD}{https://doi.org/10.54499/2021.07966.BD}).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\appendix
+\glsresetall
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+%\section{Variables of the HILDA survey}\label{AppendixA}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{Table2}
+\FloatBarrier
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section{Model selection and grid search parameters} \label{AppendixB}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+To identify the optimal models and hyperparameter configurations for predicting energy poverty, a grid search approach was implemented. This process systematically tested combinations of model parameters and evaluated their performance using cross-validation.
+
+We used 5-fold cross-validation on the training dataset to ensure that the models were tested on various data splits and that the hyperparameters chosen were robust across different subsets of data. The best set of hyperparameters was then chosen based on the highest average \Gls{rocauc} score from the validation folds. The \Gls{rocauc} score measures the model’s ability to discriminate between energy-poor and non-energy-poor households.
+
+For all models, the grid search incorporated time window sizes and cut-off points to capture the temporal dynamics of energy poverty predictors. Additionally, the grid search utilized the one-vs-rest framework, which creates a binary classifier for each class.
+
+The grid search was applied to three machine learning models commonly used for imbalanced classification tasks. All models were optimized and trained using Python, and the scikit-learn library for model implementation and evaluation. The models and their corresponding parameter grids are described below.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Model A: Random under-sampling boost}\label{ModelA}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The random under-sampling boost classifier is an ensemble method that combines boosting with random under-sampling to address class imbalance efficiently. Based on the AdaBoost algorithm, the classifier under-samples the training data during each boosting iteration in order to guarantee an equal representation of the minority (energy-poor) and majority (not energy-poor) classes. Weak classifiers, such as decision trees, are iteratively trained, with misclassified instances receiving higher weights. The final model aggregates predictions from all weak classifiers through weighted voting.
+
+The grid search included the following parameters:
+\begin{itemize}
+\item Number of estimators: 50, 100, 200
+\item Learning rate: 0.01, 0.1, 1.0
+\item Algorithm type: SAMME, SAMME.R
+\item Sampling strategy: Auto, 0.5, 1.0
+\item Replacement: True, False
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Model B: Easy ensemble}\label{ModelB}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The easy ensemble classifier \citeTwo{LWZ09} works by creating multiple balanced subsets of the training data through under-sampling of the majority class (in the case of this work, the not energy-poor class). For each balanced subset, an AdaBoost learner (which, in this context, uses a decision tree as the base estimator) is trained. The outcomes from all subsets are then combined to form a robust ensemble, and thus, prediction. As a result, the classifier ensures that the model remains sensitive to the energy-poor class (minority) while maintaining robust overall performance.
+
+The grid search explored the following parameters:
+\begin{itemize}
+\item Number of estimators: 10, 50, 100
+\item Sampling strategy: Auto, 0.5, 1.0
+\item Replacement: True, False
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Model C: Balanced bagging}\label{ModelC}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+A balanced bagging classifier \citeTwo{GFBBH12} is an ensemble technique that combines the predictions of multiple base models, e.g., decision trees, in order to improve the robustness and accuracy of the outcomes. This method specifically addresses class imbalance by ensuring that each decision tree in the ensemble is trained on a balanced subset of the dataset. These subsets are created by resampling the original training data, wherein each subset contains a representative distribution of both minority (energy-poor) and majority (not energy-poor) classes.
+
+The parameter grid included the following parameters:
+\begin{itemize}
+\item Number of estimators: 10, 50, 100
+\item Maximum samples: 0.5, 1.0
+\item Maximum features: 0.5, 1.0
+\item Bootstrap sampling: True, False
+\item Bootstrap feature selection: True, False
+\item Sampling strategy: Auto, 0.5, 1.0
+\item Replacement: True, False
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Model performance across time windows and cut-off value} \label{AppendixC}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+This appendix presents the performance results of all models tested in the study, evaluated across various cut-off values ($\bar{m}$) and time windows ($T$). The results are summarized in terms of sensitivity, specificity and \Gls{rocauc}. The best model was selected based on the highest average \Gls{rocauc} value, calculated independently of specific cut-off values and time windows. This approach ensures that the chosen model has consistently  strong performance across all configurations tested.
+
+Those performance metrics used in this evaluation are briefly described below:
+\begin{description}
+    \item[Sensitivity:] The percentage of correctly identified energy-poor households among all actual energy-poor households. Higher sensitivity indicates better identification of the minority (energy-poor) class. 
+    \item[Specificity:] The percentage of correctly identified non-energy-poor households among all actual non-energy-poor households. Higher specificity reflects fewer false positives.
+    \item[\Gls{rocauc}:] (Receiver Operating Characteristic - Area Under Curve) A measure of the model’s overall ability to discriminate between energy-poor and non-energy-poor households across varying thresholds. Higher values indicate better discrimination.
+\end{description}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{Table3}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\bibliographystyle{elsarticle-harv} 
+\bibliography{BFF-energy}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}
+
+\endinput
