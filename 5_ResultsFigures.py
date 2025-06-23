@@ -32,6 +32,7 @@ shap_files = models_data['model_name'].tolist()
 windows = models_data['window'].tolist()
 thresholds = models_data['threshold'].tolist()
 model = models_data['model'].tolist()
+contemporaneouss = models_data['contemporaneous'].tolist()
 
 # Iterate over each model
 for i in range(len(shap_files)):
@@ -41,6 +42,7 @@ for i in range(len(shap_files)):
     window = windows[i]
     threshold = thresholds[i]
     model_name = model[i]
+    countemporaneous = contemporaneouss[i]
 
     # Load the SHAP values for the model
     explainer = joblib.load(f'shap/shap_{shap_file}_proba.pkl')[:, :, 1]
@@ -118,8 +120,8 @@ for i in range(len(shap_files)):
     # Finalize layout and save the figure
     plt.tight_layout()
     os.makedirs(f'results/figures/{model_name}', exist_ok=True)
-    plt.savefig(f'results/figures/{model_name}/window_{window}_{threshold}.png')
-    plt.savefig(f'results/figures/{model_name}/window_{window}_{threshold}.pgf')
+    plt.savefig(f'results/figures/{model_name}/window_{window}_{threshold}_contemporaneous_{countemporaneous}.png')
+    plt.savefig(f'results/figures/{model_name}/window_{window}_{threshold}_contemporaneous_{countemporaneous}.pgf')
     plt.close()
 
     ##### PLOT 2
@@ -160,8 +162,8 @@ for i in range(len(shap_files)):
 
     # Finalize layout and save the figure
     plt.tight_layout()
-    plt.savefig(f'results/figures/{model_name}/window_{window}_{threshold}_notime.png')
-    plt.savefig(f'results/figures/{model_name}/window_{window}_{threshold}_notime.pgf')
+    plt.savefig(f'results/figures/{model_name}/window_{window}_{threshold}_contemporaneous_{countemporaneous}_notime.png')
+    plt.savefig(f'results/figures/{model_name}/window_{window}_{threshold}_contemporaneous_{countemporaneous}_notime.pgf')
     plt.close()
 
     ### PLOT 3
@@ -190,6 +192,9 @@ for i in range(len(shap_files)):
     for feature in features_to_plot:
         feature_data = feature_time_importance[feature_time_importance['VariableName'] == feature]
         feature_name = rename_variables([f'{feature}_t{window - 1}'], window)[0].split('at T')[0]
+        if countemporaneous:
+            mask = feature_data['T'] == ''
+            feature_data.loc[mask, 'T'] = 0
         if feature == 'lnndincome_heu':
             ax2 = ax1.twinx()
             # Plot on secondary axis and capture line object
@@ -231,6 +236,9 @@ for i in range(len(shap_files)):
     for feature in features_to_plot:
         feature_data = feature_time_importance[feature_time_importance['VariableName'] == feature]
         feature_name = rename_variables([f'{feature}_t{window - 1}'], window)[0].split('at T')[0]
+        if countemporaneous:
+            mask = feature_data['T'] == ''
+            feature_data.loc[mask, 'T'] = 0
         if feature == 'lnndincome_heu':
             ax2 = ax1.twinx()
             # Plot on secondary axis and capture line object
@@ -258,6 +266,6 @@ for i in range(len(shap_files)):
 
     plt.tight_layout()
 
-    plt.savefig(f'results/figures/{model_name}/window_{window}_{threshold}_temporal.png')
-    plt.savefig(f'results/figures/{model_name}/window_{window}_{threshold}_temporal.pgf')
+    plt.savefig(f'results/figures/{model_name}/window_{window}_{threshold}_contemporaneous_{countemporaneous}_temporal.png')
+    plt.savefig(f'results/figures/{model_name}/window_{window}_{threshold}_contemporaneous_{countemporaneous}_temporal.pgf')
     plt.close()

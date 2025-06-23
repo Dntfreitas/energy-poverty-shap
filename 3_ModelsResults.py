@@ -1,3 +1,5 @@
+import ast
+
 import pandas as pd
 
 # Load results from different classifier CSV files and tag each dataset with the respective model name
@@ -14,14 +16,18 @@ rUSBoostClassifier['model'] = 'RUSBoostClassifier'
 results = pd.concat([balancedBaggingClassifier, easyEnsembleClassifier, rUSBoostClassifier])
 
 # Extract 'threshold' and 'window' parameters from the 'parameters' column using regex
-results[['threshold', 'window']] = results['parameters'].str.extract(r"'threshold': ([\d\.]+), 'window': (\d+)")
+results['param_dict'] = results['parameters'].apply(ast.literal_eval)
+
+for key in ['contemporaneous', 'threshold', 'window']:
+    results[key] = results['param_dict'].apply(lambda d: d[key])
 
 # Convert extracted parameters to appropriate numeric types
+results['contemporaneous'] = results['contemporaneous'].astype(bool)
 results['threshold'] = results['threshold'].astype(float)
 results['window'] = results['window'].astype(int)
 
 # Define grouping columns and the metrics of interest
-groups_cols = ['model', 'threshold', 'window']  # Grouping based on model, threshold, and window
+groups_cols = ['model', 'threshold', 'window', 'contemporaneous']  # Grouping based on model, threshold, window, and contemporaneous
 results_cols = [
     'mean_test_recall', 'std_test_recall', 'mean_test_precision', 'std_test_precision',
     'mean_test_accuracy', 'std_test_accuracy', 'mean_test_balanced_accuracy', 'std_test_balanced_accuracy',

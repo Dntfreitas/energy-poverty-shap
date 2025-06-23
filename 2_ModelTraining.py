@@ -70,7 +70,7 @@ def evaluate_model(model, param_grid, scoring):
 
     for param in tqdm(parameters):
         # Load the dataset with the specified window and threshold from the parameters
-        X_train, y_train, X_test, y_test = load_datasets(window=param['window'], threshold=param['threshold'])
+        X_train, y_train, X_test, y_test = load_datasets(window=param['window'], threshold=param['threshold'], contemporaneous=param['contemporaneous'])
 
         # Scale the features using RobustScaler to handle outliers
         scaler = RobustScaler()
@@ -152,7 +152,8 @@ models_and_params = [
         'estimator__sampling_strategy': ['auto', 0.5, 1.0],
         'estimator__replacement': [True, False],
         'window': windows,
-        'threshold': thresholds
+        'threshold': thresholds,
+        'contemporaneous': [False, True]
     }),
     (BalancedBaggingClassifier(random_state=42), {
         'estimator__n_estimators': [10, 50, 100],
@@ -163,7 +164,8 @@ models_and_params = [
         'estimator__sampling_strategy': ['auto', 0.5, 1.0],
         'estimator__replacement': [True, False],
         'window': windows,
-        'threshold': thresholds
+        'threshold': thresholds,
+        'contemporaneous': [False, True]
     }),
     (RUSBoostClassifier(random_state=42), {
         'estimator__n_estimators': [50, 100, 200],
@@ -172,7 +174,8 @@ models_and_params = [
         'estimator__sampling_strategy': ['auto', 0.5, 1.0],
         'estimator__replacement': [True, False],
         'window': windows,
-        'threshold': thresholds
+        'threshold': thresholds,
+        'contemporaneous': [False, True]
     })
 ]
 
