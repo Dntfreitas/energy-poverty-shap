@@ -36,6 +36,7 @@ def obtain_shap(row):
     window = row['window']
     threshold = row['threshold']
     model_name = row['model_name']
+    contemporaneous = row['contemporaneous']  # Whether to use contemporaneous data
     sensitivity_0 = row['sensitivity_0']  # Expected sensitivity for class 0
     sensitivity_1 = row['sensitivity_1']  # Expected sensitivity for class 1
 
@@ -51,7 +52,7 @@ def obtain_shap(row):
     model_path = f'models/{model_name}.joblib'
 
     # Load datasets based on the parameters (training and testing splits)
-    X_train, _, X_test, y_test = load_datasets(window=window, threshold=threshold)
+    X_train, _, X_test, y_test = load_datasets(window=window, threshold=threshold, contemporaneous=contemporaneous)
     features = X_train.columns  # Extract feature names for SHAP visualization
 
     # Scale features to handle outliers using RobustScaler

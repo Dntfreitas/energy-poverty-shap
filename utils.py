@@ -3,13 +3,14 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 
-def load_datasets(window, threshold):
+def load_datasets(window, threshold, contemporaneous):
     """
     Load and preprocess the dataset for a given time window and MEPI threshold.
 
     Parameters:
         window (int): The size of the time window (e.g., number of consecutive years).
         threshold (float): The threshold to binarize the MEPI column.
+        contemporaneous (bool): Whether to include contemporaneous data in the analysis.
 
     Returns:
         X_train (pd.DataFrame): Training features.
@@ -18,7 +19,10 @@ def load_datasets(window, threshold):
         y_test (pd.Series): Test labels (binary MEPI).
     """
     # Load the dataset for the specified window size
-    data = pd.read_csv(f'filtered_data/Hildabalin_{window}.csv')
+    if contemporaneous:
+        data = pd.read_csv(f'filtered_data_contemporaneous/Hildabalin_{window}.csv')
+    else:
+        data = pd.read_csv(f'filtered_data/Hildabalin_{window}.csv')
     # Ensure data is sorted by user ID and wave for consistency in processing
     data.sort_values(by=['id', 'wave'], inplace=True)
 

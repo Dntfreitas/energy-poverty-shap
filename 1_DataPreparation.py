@@ -3,6 +3,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 
 from utils import has_consecutive_years, split_array, is_continuous
 
@@ -41,7 +42,7 @@ data['mepi'] = 1 - data['mepi']
 
 # Define utility functions for processing data
 
-def process_min_year(min_year, data, user_id_col, output_dir):
+def process_min_year(min_year, data, user_id_col, output_dir, include_contemporaneous=False):
     """
     Filter data for users with at least `min_year` consecutive years and process subsets.
 
@@ -50,37 +51,57 @@ def process_min_year(min_year, data, user_id_col, output_dir):
         data (DataFrame): Input dataset.
         user_id_col (str): Column name for user IDs.
         output_dir (str): Directory to save processed data.
+        include_contemporaneous (bool): Whether to include contemporaneous data in the analysis.
 
     Returns:
         None
     """
 
-    print(f"Processing data for {min_year} consecutive years...")
+    # 1) Filter users with enough consecutive waves
+    filtered = (
+        data
+        .groupby(user_id_col)
+        .filter(lambda grp: has_consecutive_years(grp['wave'].tolist(), min_years=min_year))
+    )
 
-    filtered_data = data.groupby(user_id_col).filter(
-        lambda x: has_consecutive_years(x['wave'].tolist(), min_years=min_year))
+    result_subsets = []
 
-    subsets = pd.DataFrame([])
-    for user_id, group in filtered_data.groupby(user_id_col):
-        waves = np.array(sorted(group['wave'].tolist()))[::-1]  # Sort waves in descending order
-        wave_chunks = split_array(waves, min_year)  # Split waves into chunks
-        for wave_chunk in wave_chunks:
+    for user_id, grp in tqdm(filtered.groupby(user_id_col)):
+        waves = sorted(grp['wave'].tolist(), reverse=True)
+        for wave_chunk in split_array(np.array(waves), min_year):
             if len(wave_chunk) == min_year and is_continuous(wave_chunk):
-                subset = group[group['wave'].isin(wave_chunk)].copy()
-                lag_features = subset.columns.difference(['id', 'mepi', 'wave'])
-                for feature in lag_features:
-                    for lag in range(min_year - 1):
-                        subset[f"{feature}_t{min_year - 1 - lag}"] = subset.groupby("id")[feature].shift(lag)
-                subset.drop(columns=lag_features, inplace=True)
-                last_mepi = subset['mepi'].iloc[-1]  # Get the final MEPI value
-                subset = subset.iloc[-2:-1]  # Retain the penultimate row for analysis
-                subset['mepi'] = last_mepi  # Assign the last MEPI value to the retained row
-                subsets = pd.concat([subsets, subset], ignore_index=True)
+                subset = grp[grp['wave'].isin(wave_chunk)].copy()
+                lag_feats = subset.columns.difference([user_id_col, 'mepi', 'wave'])
 
-    # Save the processed subsets to a CSV file
-    file_path = f'{output_dir}/Hildabalin_{min_year}.csv'
-    subsets.to_csv(file_path, index=False)
-    print(f'File saved: {file_path}')
+                # 2) Create a DataFrame of all lagged columns at once
+                lagged = {}
+                n_lags = min_year if include_contemporaneous else (min_year - 1)
+                for feat in lag_feats:
+                    shifted = subset.groupby(user_id_col)[feat]
+                    for lag in range(n_lags):
+                        t_name = min_year - lag if include_contemporaneous else min_year - 1 - lag
+                        col_name = f"{feat}_t{t_name}"
+                        lagged[col_name] = shifted.shift(lag)
+                lagged_df = pd.DataFrame(lagged, index=subset.index)
+
+                # 3) Drop original features and concat the new lags
+                subset = pd.concat([subset.drop(columns=lag_feats), lagged_df], axis=1)
+
+                # 4) Handle contemporaneous vs. penultimate row
+                if include_contemporaneous:
+                    out = subset.iloc[[-1]]  # keep last
+                else:
+                    last_mepi = subset['mepi'].iat[-1]
+                    out = subset.iloc[[-2]].copy()
+                    out['mepi'] = last_mepi
+
+                result_subsets.append(out)
+
+    # Combine and write once
+    all_out = pd.concat(result_subsets, ignore_index=True)
+    fn = f"{output_dir}/Hildabalin_{min_year}.csv"
+    all_out.to_csv(fn, index=False)
+    print(f"File saved: {fn}")
 
 
 # Main processing logic
@@ -91,9 +112,13 @@ MIN_YEARS = [2, 4, 8, 12, 14]
 OUTPUT_DIR = "filtered_data"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
+OUTPUT_DIR_CONTEMPORANEOUS = "filtered_data_contemporaneous"
+os.makedirs(OUTPUT_DIR_CONTEMPORANEOUS, exist_ok=True)
+
 # Process each `min_year` concurrently using a thread pool
-with ThreadPoolExecutor(max_workers=5) as executor:
-    futures = [executor.submit(process_min_year, min_year, data, USER_ID_COL, OUTPUT_DIR) for min_year in MIN_YEARS]
+with ThreadPoolExecutor(max_workers=10) as executor:
+    futures = [executor.submit(process_min_year, min_year, data.copy(), USER_ID_COL, OUTPUT_DIR, False) for min_year in MIN_YEARS] + \
+              [executor.submit(process_min_year, min_year, data.copy(), USER_ID_COL, OUTPUT_DIR_CONTEMPORANEOUS, True) for min_year in MIN_YEARS]
     for future in as_completed(futures):
         try:
             future.result()  # Wait for each task to complete
